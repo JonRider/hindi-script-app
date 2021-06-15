@@ -1,0 +1,186 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'script/custom.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'script/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Script App</title>
+  </head>
+  <body>
+
+<!-- Word to spell -->
+<div class="outer-box container gap">
+    <div class="card rounded-left-grad-border">
+      <div class="card-body">
+        <h1 id="word" class="card-title text-center">pal</h1>
+      </div>
+    </div>
+    <div id="bar" class="progress">
+      <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0"></div>
+    </div>
+</div>
+
+<!-- Place Div -->
+<div class="container">
+  <div id="place" class="row align-items-center justify-content-center swatch-200">
+    <!-- Selected Letters Append Here -->
+  </div>
+</div>
+<!-- Choose Div -->
+<div class="container gap">
+  <div id="choose" class="row align-items-center justify-content-center">
+    <!-- Letters to choose from Append Here -->
+  </div>
+</div>
+
+  </body>
+  <script>
+    let context = {"level": 1, "user": "Jon"};
+    let level_words = ["पल", "पर", "बल", "बाल", "पाल", "बाप", "नल", "नाल", "नाप", "बन", "बनना", "मानना", "मन", "पान"];
+    let level_roman = ["pal", "par", "bal", "baal", "paal", "baap", "nal", "naal", "naap", "ban", "ban-naa", "maan-naa", "man", "paan"];
+    let completed_words = [];
+    let level_letters = ["प", "र", "ब", "ा", "ल", "ग", "क", "न", "म"];
+    let wordHeading = document.querySelector("#word");
+    let place = document.querySelector("#place");
+    let choose = document.querySelector("#choose");
+    // Default Progress Bar State
+    let bar = document.querySelector("#bar");
+    let progress = 0;
+    // Set up our level word to make
+    let levelWord;
+    buildWord();
+    setBoard();
+
+
+    // Randomly select our level Word
+    function buildWord() {
+      // Make sure we dont repeat a word (Must be ten words or crashes)
+      let word = level_words[Math.floor(Math.random()*level_words.length)];
+      while (completed_words.includes(word)) {
+        word = level_words[Math.floor(Math.random()*level_words.length)];
+      }
+      // Add word to list of words we have completed
+      completed_words.push(word);
+      levelWord = word;
+      wordHeading.innerText = level_roman[level_words.indexOf(levelWord)];
+    }
+
+    // Build a letter on the screen from a given letter and at a location (the choser div or the place div)
+    function buildLetters(l, location) {
+      let letterBox = document.createElement('div');
+      letterBox.classList.add('col', 'letter-box');
+      let letter = document.createElement('h1');
+      letter.innerText = l;
+      letterBox.appendChild(letter);
+      // Remove box from the clicked location
+      letterBox.addEventListener('click', function() {
+        swapLetters(letterBox, letterBox.parentNode)
+      });
+      // Append box to location div
+      location.appendChild(letterBox);
+    }
+
+    // Swap a letter between choose and place divs
+    function swapLetters(letterBox, location) {
+      if (location == choose) {
+        choose.removeChild(letterBox);
+        place.appendChild(letterBox);
+      }
+      else {
+        place.removeChild(letterBox);
+        choose.appendChild(letterBox);
+      }
+      let audio = new Audio("{% static 'script/sounds/pull-out.mp3' %}");
+      audio.play();
+      checkWord();
+    }
+
+    // Check if user is correct
+    function checkWord() {
+      let current = ""
+      let children = place.children;
+      for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        current += child.firstChild.innerText;
+      }
+      // If correct
+      if (current == levelWord) {
+        // Move progress forward
+        progress += 10;
+        bar.firstElementChild.style.width = progress + "%";
+        // Play correct
+        let audio = new Audio("{% static 'script/sounds/open-ended.mp3' %}");
+        audio.play();
+        // Show check icon
+        let icon = document.createElement('i');
+        icon.classList.add("fa", "fa-check-circle", "check")
+        wordHeading.append(" ");
+        wordHeading.append(icon);
+        icon.classList.toggle('fade');
+        // Fade text in an out and show word in devanagri
+
+        setTimeout(function() {
+          wordHeading.classList.toggle('fade');
+        }, 600);
+        setTimeout(function() {
+          wordHeading.innerText = levelWord;
+          wordHeading.classList.toggle('fade');
+        }, 1000);
+
+
+        // Check for win state
+        if (progress == 100) {
+          let audio = new Audio("{% static 'script/sounds/win.mp3' %}");
+          audio.play();
+        }
+        else {
+          // Get a new word
+          setTimeout(buildWord, 2000);
+          // Reset board
+          setTimeout(clearBoard, 2000);
+          setTimeout(setBoard, 2000);
+        }
+      }
+    }
+
+    // Setup the board making sure we have the corret letters to make the word
+    function setBoard() {
+      // Check what letters are in the word we need to make and add them first
+      level_letters.forEach(function(letter) {
+        levelWord.split('').forEach(function(l) {
+          if (l == letter) {
+            buildLetters(letter, choose);
+          }
+        });
+      });
+
+      // Add letters only if they are not already added from the word (as above)
+      let choose_letters = [];
+      for (let i = 0; i < 5; i++) {
+        let l = level_letters[Math.floor(Math.random()*level_letters.length)];
+        if (!(levelWord.split('').includes(l)) && !(choose_letters.includes(l))) {
+            buildLetters(l, choose);
+            choose_letters.push(l);
+          }
+        else {
+          i--;
+        }
+      }
+    }
+
+    // Clear the place and choose divs
+    function clearBoard() {
+      while (place.hasChildNodes()) {
+        place.removeChild(place.lastChild);
+      }
+
+      while (choose.hasChildNodes()) {
+      choose.removeChild(choose.lastChild);
+      }
+    }
+  </script>
+</html>
