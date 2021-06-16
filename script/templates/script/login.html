@@ -1,0 +1,26 @@
+{% load socialaccount %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'script/custom.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'script/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon"href="{% static 'favicon.ico' %}">
+    <title>Script App</title>
+  </head>
+  <body>
+  {% if user.is_authenticated %}
+  <h1>My Google Login Project</h1>
+  <p>Welcome, {{ user.username }} !</p>
+ 
+  {% else %}
+  <h1>My Google Login Project</h1>
+  <a href="{% provider_login_url 'google' %}">Login with Google</a>
+  {% endif %}
+
+  </body>
+</html>

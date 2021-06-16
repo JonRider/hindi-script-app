@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'script/custom.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'script/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon"href="{% static 'favicon.ico' %}">
     <title>Script App</title>
   </head>
   <body>
@@ -40,10 +41,10 @@
   </body>
   <script>
     let context = {"level": 1, "user": "Jon"};
-    let level_words = ["पल", "पर", "बल", "बाल", "पाल", "बाप", "नल", "नाल", "नाप", "बन", "बनना", "मानना", "मन", "पान"];
-    let level_roman = ["pal", "par", "bal", "baal", "paal", "baap", "nal", "naal", "naap", "ban", "ban-naa", "maan-naa", "man", "paan"];
+    let level_words = {{ level_words|safe }};
+    let level_roman = {{ level_roman|safe }};
     let completed_words = [];
-    let level_letters = ["प", "र", "ब", "ा", "ल", "ग", "क", "न", "म"];
+    let level_letters = {{ level_letters|safe }};
     let wordHeading = document.querySelector("#word");
     let place = document.querySelector("#place");
     let choose = document.querySelector("#choose");
@@ -54,7 +55,6 @@
     let levelWord;
     buildWord();
     setBoard();
-
 
     // Randomly select our level Word
     function buildWord() {
