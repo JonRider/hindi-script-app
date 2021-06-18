@@ -21,7 +21,6 @@ from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('', include('script.urls')),
-    path('login/', TemplateView.as_view(template_name="script/login.html")),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('favicon.ico', RedirectView.as_view(

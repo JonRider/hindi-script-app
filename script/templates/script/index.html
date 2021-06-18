@@ -8,18 +8,50 @@
     <link rel="stylesheet" type="text/css" href="{% static 'script/custom.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'script/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <link rel="icon"href="{% static 'favicon.ico' %}">
     <title>Script App</title>
   </head>
   <body>
 
+<!-- Navbar -->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand mb-0 h1" href="#">
+    <img src="{% static 'icon_light.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
+    Hindi Script App
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+    </ul>
+    <span class="navbar-text text-light mr-2 p-1">
+      Hello {{user.username}}
+    </span>
+    <a href="{% url 'logout' %}"><button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Logout</button></a>
+  </div>
+</nav>
+
 <!-- Word to spell -->
 <div class="outer-box container gap">
+  <div class="pb-2"><h4 class="text-center pb-1"><mark class="bg-dark text-light rounded pl-2 pr-2">LEVEL {{level}}</mark></h4></div>
     <div class="card rounded-left-grad-border">
       <div class="card-body">
-        <h1 id="word" class="card-title text-center">pal</h1>
+        <h1 id="word" class="card-title text-center"></h1>
       </div>
     </div>
+    
     <div id="bar" class="progress">
       <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0"></div>
     </div>
@@ -37,10 +69,20 @@
     <!-- Letters to choose from Append Here -->
   </div>
 </div>
+<!-- Next Level Button -->
+<form id="next" action="{% url 'index' %}" method="post">
+  {% csrf_token %}
+  <div class="form-group align-items-center">
+    <input name="level" value="2" type="hidden" class="form-control" placeholder="Noun">
+  </div>
+  <div class="text-center">
+    <button type="submit" class="btn btn-secondary text-center">Next Level</button>
+  </div>
+</form>
 
   </body>
   <script>
-    let context = {"level": 1, "user": "Jon"};
+    let level = {{ level }}
     let level_words = {{ level_words|safe }};
     let level_roman = {{ level_roman|safe }};
     let completed_words = [];
@@ -55,6 +97,10 @@
     let levelWord;
     buildWord();
     setBoard();
+
+    // Hide Next Level Button
+    document.getElementById("next").hidden = true;
+   
 
     // Randomly select our level Word
     function buildWord() {
@@ -136,6 +182,8 @@
         if (progress == 100) {
           let audio = new Audio("{% static 'script/sounds/win.mp3' %}");
           audio.play();
+          // Display Next Level Button
+          document.getElementById("next").hidden = false;
         }
         else {
           // Get a new word
